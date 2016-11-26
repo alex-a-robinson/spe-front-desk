@@ -42,4 +42,5 @@ admin.database().ref('recent_bookings').once('value', function() {
     process.exit(0)
 });
 
+// ---- DO YOUR CHANGES HERE ----
 write_booking('dan@testmail.com', 123);

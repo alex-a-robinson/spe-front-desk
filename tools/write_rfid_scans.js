@@ -25,6 +25,5 @@ admin.auth();
 admin.database().ref('rfid_scans').once('value', function() {
     process.exit(0)
 });
-//write_rfid_scans(1, 12347, 789);
-write_rfid_scans(1, 115, 789);
+// ---- DO YOUR CHANGES HERE ----
 write_rfid_scans(1, 116, 999);
