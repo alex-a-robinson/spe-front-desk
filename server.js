@@ -4,6 +4,9 @@ var admin = require("firebase-admin");
 var http = require('http');
 var url = require('url');
 
+var express = require('express');
+var app = express();
+
 
 function write_rfid_scans(scanner_id, rfid, timestamp) {
     admin.database().ref('rfid_scans/' + scanner_id).push({
@@ -58,20 +61,7 @@ function handle_request(req, res) {
     console.log(email);
 
 
-    if (email === undefined) {
-        res.statusCode = 400;
-        res.end('please enter an email in the email GET parameter');
-        return;
-    }
 
-    uid_from_email(email, function(uid) {
-        res.statusCode = 200;
-        res.end(uid);
-    }, function(err) {
-        res.statusCode = 501;
-        res.end('an error occured:', err);
-        console.log('ERROR');
-    });
 }
 
 admin.initializeApp({
@@ -83,7 +73,32 @@ admin.initializeApp({
 });
 admin.auth();
 
-var server = http.createServer(handle_request);
+/*var server = http.createServer(handle_request);
 server.listen(3001, function() {
+    console.log("Server listening on: http://localhost:%s", 3001);
+});*/
+
+app.get('/', function(req, res) {
+    var email = req.query.email;
+    if (email === undefined) {
+        res.status(400).jsonp({
+            error: 'please enter an email in the email GET parameter'
+        });
+        return;
+    }
+
+    uid_from_email(email, function(uid) {
+        res.jsonp({
+            uid: uid
+        });
+    }, function(err) {
+        res.status(501).jsonp({
+            error: 'an error occured'
+        });
+        console.log('ERROR');
+    });
+});
+
+app.listen(3001, function() {
     console.log("Server listening on: http://localhost:%s", 3001);
 });

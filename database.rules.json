@@ -47,19 +47,8 @@
         "rfid_scans": {
             ".write": true,
             ".read": true,
-            "$scanner_id": {
-                "scan_id": {
-                    "rfid": {
-                        ".validate": "newData.isString()"
-                    },
-                    "timestamp": {
-                        ".validate": "newData.isNumber()"
-                    },
-                    //invalidate any extra fields
-                    "$other": {
-                        ".validate": false
-                    }
-                }
+            ".indexOn": "scanner_id",
+            "rfid_scan_id": {
             }
         },
 

@@ -4,9 +4,10 @@ var admin = require("firebase-admin");
 
 
 function write_rfid_scans(scanner_id, rfid, timestamp) {
-    admin.database().ref('rfid_scans/' + scanner_id).push({
+    admin.database().ref('rfid_scans').push({
         rfid: rfid,
         timestamp: timestamp,
+        scanner_id: scanner_id
     }).catch(function(error) {
         console.error('Error writing new rfid scan', error);
     });
@@ -25,7 +26,5 @@ admin.database().ref('rfid_scans').once('value', function() {
     process.exit(0)
 });
 //write_rfid_scans(1, 12347, 789);
-write_rfid_scans(1, 6, 789);
-//write_rfid(123, '-KXWCZdiHCVhvCMLx6be', "KDIQpU8ExIV9ynccO1irk4y01q82");
-//write_rfid(1234, '-KXWCZdiHCVhvCMLx6be', "KDIQpU8ExIV9ynccO1irk4y01q82");
-//write_rfid(12345, '-KXWCZdiHCVhvCMLx6be', "KDIQpU8ExIV9ynccO1irk4y01q82");
+write_rfid_scans(1, 115, 789);
+write_rfid_scans(1, 116, 999);

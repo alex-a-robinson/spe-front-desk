@@ -1,7 +1,7 @@
 function App() {
     this.user = null;
     this.current_selected = null;
-    this.scanner_id = '1';
+    this.scanner_id = 1;
     this.new_items = false;
     this.init_firebase();
 }
@@ -162,14 +162,14 @@ App.prototype.toggle_add_rfids = function(elem, force_state) {
 App.prototype.add_rfids = function() {
     // TODO add any RFID scanned by linked scanner to booking
     new_items = false;
-    firebase.database().ref('rfid_scans/' + this.scanner_id).on('child_added', this.add_rfid.bind(this));
-    firebase.database().ref('rfid_scans/' + this.scanner_id).once('child_added').then(function() {
+    firebase.database().ref('rfid_scans').orderByChild('scanner_id').equalTo(this.scanner_id).on('child_added', this.add_rfid.bind(this));
+    firebase.database().ref('rfid_scans').orderByChild('scanner_id').equalTo(this.scanner_id).once('child_added').then(function() {
         new_items = true;
     });
 }
 
 App.prototype.stop_adding_rfids = function() {
-    firebase.database().ref('rfid_scans/' + this.scanner_id).off('child_added');
+    firebase.database().ref('rfid_scans').orderByChild('scanner_id').equalTo(this.scanner_id).off('child_added');
 }
 
 App.prototype.get_current_selected_uid = function(callback) {
@@ -178,49 +178,25 @@ App.prototype.get_current_selected_uid = function(callback) {
     // Get the email, then either create a user or get user
     firebase.database().ref('bookings/' + this.current_selected).once('value').then(function(snapshot) {
         var email = snapshot.val().email;
-
-        callback(123); // TODO, uid cannot be got from client
-
-        /*
-        firebase.auth().getUserByEmail(email)
-            .then(function(userRecord) {
-                console.log("User account found:", userRecord.toJSON());
-                callback(userRecord.uid);
-            })
-            .catch(function(error) {
-                console.log("Error getting user record:", error);
-                errorstatus = error.errorInfo.code;
-            }).then(function() {
-                if (errorstatus == 'auth/user-not-found') {
-                    console.log("User not found, creating account");
-
-                    firebase.auth().createUser({
-                            email: email,
-                            emailVerified: false,
-                            //TODO: Make the password secure using a crypto library (Math.random() is not secured)
-                            password: (Math.random() + 1).toString(36).slice(2) + (Math.random() + 1).toString(36).slice(2),
-                            disabled: false
-                        })
-                        .then(function(userRecord) {
-                            console.log("Successfully created new user:", userRecord.uid);
-                            console.log(userRecord.toJSON());
-                            callback(userRecord.uid);
-                        })
-                        .catch(function(error) {
-                            console.log("Error creating new user:", error);
-                        });
-                }
-            });*/
+        //callback(123); // TODO, uid cannot be got from client
+        $.ajax({
+            url: 'http://localhost:3001/?email=' + email,
+            success: callback,
+            dataType: 'jsonp',
+            crossOrigin: true,
+        });
     });
 }
 
 App.prototype.add_rfid = function(snapshot) {
+    console.log(snapshot);
     if (!new_items) return;
 
     var rfid = snapshot.val();
     var booking_id = this.current_selected;
 
     this.get_current_selected_uid(function(uid) {
+        uid = uid.uid;
         firebase.database().ref('rfids/' + rfid.rfid).set({
             booking_id: booking_id,
             uid: uid,
@@ -231,6 +207,16 @@ App.prototype.add_rfid = function(snapshot) {
 }
 
 window.onload = function() {
+    window.app = new App();
+
+    firebase.database().ref('recent_bookings').on('child_added', app.create_booking_element.bind(app));
+    firebase.database().ref('recent_bookings').on('child_removed', delete_booking_element);
+
+    $('#search').keypress(function(evt) {
+        if (evt.which == 13) app.search($('#search').val())
+    });
+}
+load = function() {
     window.app = new App();
 
     firebase.database().ref('recent_bookings').on('child_added', app.create_booking_element.bind(app));

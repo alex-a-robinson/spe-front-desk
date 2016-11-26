@@ -41,7 +41,5 @@ admin.database().ref('bookings').once('child_added', write_recent_booking);
 admin.database().ref('recent_bookings').once('value', function() {
     process.exit(0)
 });
-write_booking('test@testmail.com', 123);
-//write_rfid(123, '-KXWCZdiHCVhvCMLx6be', "KDIQpU8ExIV9ynccO1irk4y01q82");
-//write_rfid(1234, '-KXWCZdiHCVhvCMLx6be', "KDIQpU8ExIV9ynccO1irk4y01q82");
-//write_rfid(12345, '-KXWCZdiHCVhvCMLx6be', "KDIQpU8ExIV9ynccO1irk4y01q82");
+
+write_booking('dan@testmail.com', 123);
