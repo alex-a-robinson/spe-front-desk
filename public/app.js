@@ -32,7 +32,8 @@ App.prototype.on_auth_state_change = function(user) {
     }
 }
 
-function create_booking_element_html(snapshot) {
+// Creates a booking element in the interface to display real times bookings from terminals
+function create_recent_booking_element_html(snapshot) {
     var booking = snapshot.val();
     var count = 4; // TODO need booking ticket count
 
@@ -52,16 +53,19 @@ function create_booking_element_html(snapshot) {
     $('#recent-bookings-list').append(element);
 }
 
-function delete_booking_element(snapshot) {
+// Deletes recent booking element html
+function delete_recent_booking_element(snapshot) {
     var booking_id = snapshot.val();
     $('#recent-booking-' + booking_id).remove();
 }
 
-App.prototype.create_booking_element = function(snapshot) {
+// Gets a recent booking id, finds the booking, creates the html element
+App.prototype.create_recent_booking_element = function(snapshot) {
     var booking_id = snapshot.val();
-    firebase.database().ref('bookings/' + booking_id).once('value').then(create_booking_element_html);
+    firebase.database().ref('bookings/' + booking_id).once('value').then(create_recent_booking_element_html);
 }
 
+// Updates booking zoom with selected booking details
 function update_booking_element_html(snapshot) {
     var booking = snapshot.val();
     var count = 4; // TODO need booking ticket count
@@ -70,38 +74,51 @@ function update_booking_element_html(snapshot) {
     $('#booking-count').text(count);
 }
 
+// Adds the rfids to the booking zoom
 function add_booking_element_rfid_html(snapshot) {
     var rfid_id = snapshot.key; // TODO date of rfid added, which scanner
     var element_html = '<li id="booking-rfid-' + rfid_id + '">' + rfid_id + '</li>'
     $('#booking-rfids').append(element_html);
 }
 
+// Deletes rfids from booking zoom
 function remove_booking_element_rfid_html(snapshot) {
     var rfid_id = snapshot.key;
     $('#booking-rfid-' + rfid_id).remove();
 }
 
+// Updates the booking zoom with selected booking details
 App.prototype.update_selected = function(booking_id) {
+
+    // If something was selected before, turn off the event waters and remove styling class
     if (this.current_selected) {
         this.current_selected_rfids_ref().off('child_added');
         this.current_selected_rfids_ref().off('child_removed');
         $('#recent-booking-' + this.current_selected).removeClass('booking-selected');
     }
+
+    // Now on the newly selcted booking
     this.current_selected = booking_id;
+    // Add styling class, clear the html so we can rewrite the data
     $('#recent-booking-' + this.current_selected).addClass('booking-selected');
     $('#booking-rfids').html('');
     firebase.database().ref('bookings/' + this.current_selected).once('value').then(update_booking_element_html);
+
+    // Add rfid event whatchers
     this.current_selected_rfids_ref().on('child_added', add_booking_element_rfid_html);
     this.current_selected_rfids_ref().on('child_removed', remove_booking_element_rfid_html);
 
+    // Enable the button, ensure its state starts as off
     $('#booking-add-rfids').attr('disabled', false);
     this.toggle_add_rfids($('#booking-add-rfids'), 'off');
 }
 
+// Shortcut function, returns ref to the currently selected bookings rfids
 App.prototype.current_selected_rfids_ref = function() {
     return firebase.database().ref('rfids').orderByChild('booking_id').equalTo(this.current_selected);
 }
 
+// No bookings selected, called to reset booking zoom
 App.prototype.nothing_selected = function() {
     this.current_selected = null;
     $('#booking-email').text('n/a');
@@ -111,6 +128,7 @@ App.prototype.nothing_selected = function() {
     this.toggle_add_rfids($('#booking-add-rfids'), 'off');
 }
 
+// Delete a booking from the interface (when remove button pressed)
 App.prototype.remove_booking = function(booking_id) {
     if (this.current_selected == booking_id) {
         this.nothing_selected();
@@ -118,11 +136,13 @@ App.prototype.remove_booking = function(booking_id) {
     firebase.database().ref('recent_bookings/' + booking_id).remove();
 }
 
+// Select a result from search rather then recent bookings, delete search results popup
 App.prototype.select_search = function(booking_id) {
     this.update_selected(booking_id);
     $('#search-results').remove();
 }
 
+// Create the search results popup element
 function create_search_results_element_html(snapshot) {
     var results_html = '';
     snapshot.forEach(function(child) {
@@ -134,10 +154,13 @@ function create_search_results_element_html(snapshot) {
     $('body').append(element_html);
 }
 
+// Search by query, called when enter is pressed in search box
 App.prototype.search = function(query) {
     // TODO Should order these by timestamp, most recent first
     firebase.database().ref('bookings').orderByChild("email").equalTo(query).once('value').then(create_search_results_element_html);
 }
+
+// Toggle "Add RFIDs" button
 App.prototype.toggle_add_rfids = function(elem, force_state) {
     elem = $(elem);
     var state;
@@ -159,8 +182,9 @@ App.prototype.toggle_add_rfids = function(elem, force_state) {
     $(elem).attr('data-toggle', state);
 }
 
+// Adds listeners so any RFID scanned by this.scanner_id is added to selected booking
 App.prototype.add_rfids = function() {
-    // TODO add any RFID scanned by linked scanner to booking
+    // We only want newly scanned rfids rather then all previous ones, new_items does this
     new_items = false;
     firebase.database().ref('rfid_scans').orderByChild('scanner_id').equalTo(this.scanner_id).on('child_added', this.add_rfid.bind(this));
     firebase.database().ref('rfid_scans').orderByChild('scanner_id').equalTo(this.scanner_id).once('child_added').then(function() {
@@ -168,10 +192,12 @@ App.prototype.add_rfids = function() {
     });
 }
 
+// Disable the RFID event watcher
 App.prototype.stop_adding_rfids = function() {
     firebase.database().ref('rfid_scans').orderByChild('scanner_id').equalTo(this.scanner_id).off('child_added');
 }
 
+// Calls admin server to get uid from email
 App.prototype.get_current_selected_uid = function(callback) {
     var errorstatus = null;
 
@@ -188,8 +214,8 @@ App.prototype.get_current_selected_uid = function(callback) {
     });
 }
 
+// Add RFID to currently selected booking
 App.prototype.add_rfid = function(snapshot) {
-    console.log(snapshot);
     if (!new_items) return;
 
     var rfid = snapshot.val();
@@ -209,19 +235,11 @@ App.prototype.add_rfid = function(snapshot) {
 window.onload = function() {
     window.app = new App();
 
-    firebase.database().ref('recent_bookings').on('child_added', app.create_booking_element.bind(app));
-    firebase.database().ref('recent_bookings').on('child_removed', delete_booking_element);
+    // Setup recent booking event watchers
+    firebase.database().ref('recent_bookings').on('child_added', app.create_recent_booking_element.bind(app));
+    firebase.database().ref('recent_bookings').on('child_removed', delete_recent_booking_element);
 
-    $('#search').keypress(function(evt) {
-        if (evt.which == 13) app.search($('#search').val())
-    });
-}
-load = function() {
-    window.app = new App();
-
-    firebase.database().ref('recent_bookings').on('child_added', app.create_booking_element.bind(app));
-    firebase.database().ref('recent_bookings').on('child_removed', delete_booking_element);
-
+    // When enter key pressed in search box
     $('#search').keypress(function(evt) {
         if (evt.which == 13) app.search($('#search').val())
     });

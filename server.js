@@ -1,21 +1,8 @@
 'use strict';
 
 var admin = require("firebase-admin");
-var http = require('http');
-var url = require('url');
-
 var express = require('express');
 var app = express();
-
-
-function write_rfid_scans(scanner_id, rfid, timestamp) {
-    admin.database().ref('rfid_scans/' + scanner_id).push({
-        rfid: rfid,
-        timestamp: timestamp,
-    }).catch(function(error) {
-        console.error('Error writing new rfid scan', error);
-    });
-}
 
 function uid_from_email(email, success_callback, failure_callback) {
     var errorstatus;
@@ -53,17 +40,6 @@ function uid_from_email(email, success_callback, failure_callback) {
         });
 }
 
-//We need a function which handles requests and send response
-function handle_request(req, res) {
-    var url_parts = url.parse(req.url, true);
-    var email = url_parts.query.email;
-
-    console.log(email);
-
-
-
-}
-
 admin.initializeApp({
     databaseURL: "https://spe-elabs.firebaseio.com",
     credential: admin.credential.cert(require("service.json")),
@@ -72,11 +48,6 @@ admin.initializeApp({
     }
 });
 admin.auth();
-
-/*var server = http.createServer(handle_request);
-server.listen(3001, function() {
-    console.log("Server listening on: http://localhost:%s", 3001);
-});*/
 
 app.get('/', function(req, res) {
     var email = req.query.email;
