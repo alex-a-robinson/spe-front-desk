@@ -16,6 +16,7 @@
 
         #header {
             width: 100%;
+            height: 64px;
         }
 
         #recent-bookings-list {
@@ -27,11 +28,15 @@
             height: 100%;
         }
 
-        .recent_booking {
+        .recent-booking {
             background-color: #abffac;
             margin: 4px;
             padding: 4px;
             border: solid 1px #000;
+        }
+
+        .booking-selected {
+            background-color: red;
         }
 
         #booking {
@@ -50,6 +55,14 @@
         h1 {
             display: inline-block;
         }
+
+        #search-results {
+            position: absolute;
+            right: 0px;
+            top: 64px;
+            background-color: red;
+            padding-right: 4px;
+        }
     </style>
 </head>
 
@@ -62,7 +75,12 @@
         </div>
 
         <div id='recent-bookings-list'></div>
-        <div id='booking'>a</div>
+        <div id='booking'>
+            <span id='booking-email'>n/a</span>
+            <br />
+            <span id='booking-count'>n/a</span>
+            <ul id='booking-rfids'></ul>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase.js"></script>

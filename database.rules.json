@@ -2,8 +2,9 @@
     "rules": {
 
         "recent_bookings": {
-            ".write": "auth.uid === 'booking-service'",
-            ".read": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'"
+            ".write": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            ".read": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            "$booking_num": {}
         },
         "bookings": {
             // Only the booking system has write access
@@ -24,8 +25,10 @@
             }
         },
         "rfids": {
-            ".write": "(auth.uid === 'entry-service'  || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1') && !data.exists()",
+            // DEBUGING hence .write for booking service
+            ".write": "(auth.uid === 'booking-service' || auth.uid === 'entry-service'  || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1') && !data.exists()",
             ".read": "auth.uid === 'entry-service' || auth.uid === 'exhibitionuid' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            ".indexOn": "booking_id",
             "$rfid_num": {
                 //Only the entry system should be allowed to assign rfids and no rfids should be overwritten
 
