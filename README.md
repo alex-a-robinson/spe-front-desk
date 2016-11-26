@@ -44,6 +44,8 @@ Navigate to <http://localhost:3001/>, add `?email=<email>` and the server will c
 
 ### Tools
 
+Tools use a service account which should be included, if not download from [firebase](https://console.firebase.google.com/project/spe-elabs/settings/serviceaccounts/adminsdk) and rename `service.json`
+
 - Write a booking, open `tools/write_booking.js` and edit last line then run `node tools/write_booking.js`. This also adds the booking to the recent_bookings table. Notice if you run this while the interface is open it will auto update.
 - Write a RFID scan, open `tools/write_rfid_scans.js` and edit last line then run `node tools/write_rfid_scans.js`. If you write a scan while `Add RFIDs` button pressed on interface then the RFIDs will be linked with the selected booking and show in the interface.
 
