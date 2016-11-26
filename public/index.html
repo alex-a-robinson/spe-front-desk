@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Welcome to Firebase Hosting</title>
+    <style media="screen">
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        #container {
+            height: 85vh;
+        }
+
+        #header {
+            width: 100%;
+        }
+
+        #recent-bookings-list {
+            width: 50%;
+            background-color: #e0e0e0;
+            display: inline-block;
+            box-sizing: border-box;
+            border-right: solid 1px #000;
+            height: 100%;
+        }
+
+        .recent_booking {
+            background-color: #abffac;
+            margin: 4px;
+            padding: 4px;
+            border: solid 1px #000;
+        }
+
+        #booking {
+            width: 50%;
+            background-color: #9c9c9c;
+            float: right;
+            display: inline-block;
+            height: 100%;
+        }
+
+        #search {
+            float: right;
+            display: inline-block;
+        }
+
+        h1 {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id='container'>
+        <div id='header'>
+            <h1>Recent bookings</h1>
+            <input id='search' placeholder='email' />
+        </div>
+
+        <div id='recent-bookings-list'></div>
+        <div id='booking'>a</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/3.6.1/firebase.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyAIYzLxoBvZWATXNYn4WX9_k5qGgzoUkxs",
+            authDomain: "spe-elabs.firebaseapp.com",
+            databaseURL: "https://spe-elabs.firebaseio.com",
+            storageBucket: "spe-elabs.appspot.com",
+            messagingSenderId: "929277917485"
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+{
+    "rules": {
+
+        "recent_bookings": {
+            ".write": "auth.uid === 'booking-service'",
+            ".read": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'"
+        },
+        "bookings": {
+            // Only the booking system has write access
+            ".write": "auth.uid === 'booking-service'",
+            ".read": "auth.uid === 'entry-service' || auth.uid === 'booking-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            ".indexOn": ["email", "timestamp"],
+            //wildcards are always strings
+            "booking_id": {
+                "email": {
+                    ".validate": "newData.isString()"
+                },
+                "timestamp": {
+                    ".validate": "newData.isNumber()"
+                },
+                "$other": {
+                    ".validate": false
+                }
+            }
+        },
+        "rfids": {
+            ".write": "(auth.uid === 'entry-service'  || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1') && !data.exists()",
+            ".read": "auth.uid === 'entry-service' || auth.uid === 'exhibitionuid' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            "$rfid_num": {
+                //Only the entry system should be allowed to assign rfids and no rfids should be overwritten
+
+                //Check fields are of the right type
+                "uid": {
+                    ".validate": "newData.isString()"
+                },
+                "booking_id": {
+                    ".validate": "newData.isString()"
+                },
+                //invalidate any extra fields
+                "$other": {
+                    ".validate": false
+                }
+            }
+        },
+
+        "media": {
+            ".write": "auth.uid == 'exhibitionuid'",
+            "$uid": {
+                ".read": "$uid == auth.uid || auth.uid == 'exhibitionuid'",
+                "$rfid_num": {
+                    //A list of filenames that exist in firebase storage under the rfid number
+                    "file_name": {
+                        ".validate": "root.child('rfids/'+$rfid_num).child('uid').val() == $uid && newData.isString()"
+                    }
+                }
+            }
+        }
+    }
+}
