@@ -31,21 +31,36 @@ App.prototype.on_auth_state_change = function(user) {
     this.user = user;
 }
 
-/* TODO
- * Create booking elem when new booking added to recent_bookings
- * Delete booking elem when booking removed from recent_bookings
- * Let worker login to special user account
- * Add search box to seearch all bookings
- * Connect to scanner and scan wrist bands in
- * Have X button to close booking elem / remove from
- */
+App.prototype.get_booking_input = function() {
+    return {
+        quantity: this.booking_quantity_input.value,
+        email: this.booking_email_input.value
+    };
+}
 
-App.prototype.create_booking_element = function(booking) {}
-App.prototype.delete_booking_element = function(booking) {}
-App.prototype.search = function(query, callback) {}
-App.prototype.change_focus = function(booking_id) {}
-App.prototype.add_rfid = function(rfid) {}
-App.prototype.close_booking_element = function() {}
+App.prototype.clear_booking_input = function() {
+    this.booking_quantity_input.value = this.booking_quantity_input.getAttribute('data-default');
+    this.booking_email_input.value = this.booking_email_input.getAttribute('data-default');
+}
+
+App.prototype.book = function() {
+    var booking_data = this.get_booking_input();
+
+    var booking = this.save_booking(booking_data);
+    this.booked(booking_data);
+    this.clear_booking_input();
+}
+
+App.prototype.save_booking = function(booking_data) {
+    booking_data.date = firebase.database.ServerValue.TIMESTAMP;
+    return this.booking_ref.push(booking_data).catch(function(error) {
+        console.error('Error writing new booking to Firebase Database', error);
+    });
+}
+
+App.prototype.booked = function(booking) {
+    console.log('Booked ' + booking.quantity + ' tickets under ' + booking.email);
+}
 
 window.onload = function() {
     window.app = new App();
