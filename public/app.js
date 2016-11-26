@@ -1,25 +1,22 @@
 function App() {
     this.user = null;
     this.current_selected = null;
+    this.scanner_id = '1';
+    this.new_items = false;
     this.init_firebase();
 }
 
+var new_items = false;
+
 // Sets up shortcuts to Firebase features
 App.prototype.init_firebase = function() {
-    this.database = firebase.database();
-    this.storage = firebase.storage();
-    this.auth = firebase.auth();
-
-    this.recent_bookings = this.database.ref('recent_bookings');
-    this.bookings = this.database.ref('bookings');
-
     this.provider = new firebase.auth.GoogleAuthProvider(); // NOTE: change to email/password?
-    this.auth.onAuthStateChanged(this.on_auth_state_change.bind(this));
+    firebase.auth().onAuthStateChanged(this.on_auth_state_change.bind(this));
 };
 
 App.prototype.sign_in = function() {
-    if (!this.auth.currentUser) {
-        this.auth.signInWithPopup(this.provider).catch(function(err) {
+    if (!firebase.auth().currentUser) {
+        firebase.auth().signInWithPopup(this.provider).catch(function(err) {
             console.error('Sign in failed', err);
         });
     }
@@ -30,22 +27,12 @@ App.prototype.on_auth_state_change = function(user) {
         this.user = user;
         console.log(this.user.email + ' signed in');
     } else {
+        this.user = null;
         this.sign_in();
     }
 }
 
-/* TODO
- * Create booking elem when new booking added to recent_bookings
- * Delete booking elem when booking removed from recent_bookings
- * Let worker login to special user account
- * Add search box to seearch all bookings
- * Connect to scanner and scan wrist bands in
- * Create new user from booking
- */
-
 function create_booking_element_html(snapshot) {
-    console.log('create_booking_element_html 5');
-    console.log(snapshot.val());
     var booking = snapshot.val();
     var count = 4; // TODO need booking ticket count
 
@@ -66,7 +53,6 @@ function create_booking_element_html(snapshot) {
 }
 
 function delete_booking_element(snapshot) {
-    console.log('delete_booking_element');
     var booking_id = snapshot.val();
     $('#recent-booking-' + booking_id).remove();
 }
@@ -108,6 +94,8 @@ App.prototype.update_selected = function(booking_id) {
     this.current_selected_rfids_ref().on('child_added', add_booking_element_rfid_html);
     this.current_selected_rfids_ref().on('child_removed', remove_booking_element_rfid_html);
 
+    $('#booking-add-rfids').attr('disabled', false);
+    this.toggle_add_rfids($('#booking-add-rfids'), 'off');
 }
 
 App.prototype.current_selected_rfids_ref = function() {
@@ -119,16 +107,15 @@ App.prototype.nothing_selected = function() {
     $('#booking-email').text('n/a');
     $('#booking-count').text('n/a');
     $('#booking-rfids').html('');
+    $('#booking-add-rfids').attr('disabled', true);
+    this.toggle_add_rfids($('#booking-add-rfids'), 'off');
 }
 
 App.prototype.remove_booking = function(booking_id) {
     if (this.current_selected == booking_id) {
         this.nothing_selected();
     }
-    console.log(booking_id);
-    firebase.database().ref('recent_bookings/' + booking_id).remove(function(err) {
-        console.error('Error deleteing recent_booking', err);
-    });
+    firebase.database().ref('recent_bookings/' + booking_id).remove();
 }
 
 App.prototype.select_search = function(booking_id) {
@@ -148,17 +135,106 @@ function create_search_results_element_html(snapshot) {
 }
 
 App.prototype.search = function(query) {
+    // TODO Should order these by timestamp, most recent first
     firebase.database().ref('bookings').orderByChild("email").equalTo(query).once('value').then(create_search_results_element_html);
 }
-App.prototype.change_focus = function(booking_id) {}
-App.prototype.add_rfid = function(rfid) {}
-App.prototype.close_booking_element = function() {}
+App.prototype.toggle_add_rfids = function(elem, force_state) {
+    elem = $(elem);
+    var state;
+    if (force_state === undefined) {
+        state = $(elem).attr('data-toggle');
+    } else {
+        state = force_state;
+    }
+
+    if (state == 'off') {
+        elem.text('Add RFIDs');
+        state = 'on';
+        this.stop_adding_rfids();
+    } else {
+        elem.text('Stop adding RFIDs');
+        state = 'off';
+        this.add_rfids();
+    }
+    $(elem).attr('data-toggle', state);
+}
+
+App.prototype.add_rfids = function() {
+    // TODO add any RFID scanned by linked scanner to booking
+    new_items = false;
+    firebase.database().ref('rfid_scans/' + this.scanner_id).on('child_added', this.add_rfid.bind(this));
+    firebase.database().ref('rfid_scans/' + this.scanner_id).once('child_added').then(function() {
+        new_items = true;
+    });
+}
+
+App.prototype.stop_adding_rfids = function() {
+    firebase.database().ref('rfid_scans/' + this.scanner_id).off('child_added');
+}
+
+App.prototype.get_current_selected_uid = function(callback) {
+    var errorstatus = null;
+
+    // Get the email, then either create a user or get user
+    firebase.database().ref('bookings/' + this.current_selected).once('value').then(function(snapshot) {
+        var email = snapshot.val().email;
+
+        callback(123); // TODO, uid cannot be got from client
+
+        /*
+        firebase.auth().getUserByEmail(email)
+            .then(function(userRecord) {
+                console.log("User account found:", userRecord.toJSON());
+                callback(userRecord.uid);
+            })
+            .catch(function(error) {
+                console.log("Error getting user record:", error);
+                errorstatus = error.errorInfo.code;
+            }).then(function() {
+                if (errorstatus == 'auth/user-not-found') {
+                    console.log("User not found, creating account");
+
+                    firebase.auth().createUser({
+                            email: email,
+                            emailVerified: false,
+                            //TODO: Make the password secure using a crypto library (Math.random() is not secured)
+                            password: (Math.random() + 1).toString(36).slice(2) + (Math.random() + 1).toString(36).slice(2),
+                            disabled: false
+                        })
+                        .then(function(userRecord) {
+                            console.log("Successfully created new user:", userRecord.uid);
+                            console.log(userRecord.toJSON());
+                            callback(userRecord.uid);
+                        })
+                        .catch(function(error) {
+                            console.log("Error creating new user:", error);
+                        });
+                }
+            });*/
+    });
+}
+
+App.prototype.add_rfid = function(snapshot) {
+    if (!new_items) return;
+
+    var rfid = snapshot.val();
+    var booking_id = this.current_selected;
+
+    this.get_current_selected_uid(function(uid) {
+        firebase.database().ref('rfids/' + rfid.rfid).set({
+            booking_id: booking_id,
+            uid: uid,
+        }).catch(function(err) {
+            console.error('Error writing rfid', err);
+        });
+    })
+}
 
 window.onload = function() {
     window.app = new App();
 
-    app.recent_bookings.on('child_added', app.create_booking_element.bind(app));
-    app.recent_bookings.on('child_removed', delete_booking_element);
+    firebase.database().ref('recent_bookings').on('child_added', app.create_booking_element.bind(app));
+    firebase.database().ref('recent_bookings').on('child_removed', delete_booking_element);
 
     $('#search').keypress(function(evt) {
         if (evt.which == 13) app.search($('#search').val())

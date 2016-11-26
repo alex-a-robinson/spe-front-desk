@@ -1,17 +1,14 @@
 {
     "rules": {
-
         "recent_bookings": {
             ".write": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
             ".read": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
             "$booking_num": {}
         },
         "bookings": {
-            // Only the booking system has write access
             ".write": "auth.uid === 'booking-service'",
             ".read": "auth.uid === 'entry-service' || auth.uid === 'booking-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
             ".indexOn": ["email", "timestamp"],
-            //wildcards are always strings
             "booking_id": {
                 "email": {
                     ".validate": "newData.isString()"
@@ -25,7 +22,7 @@
             }
         },
         "rfids": {
-            // DEBUGING hence .write for booking service
+            /* DEBUGING hence .write for booking service
             ".write": "(auth.uid === 'booking-service' || auth.uid === 'entry-service'  || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1') && !data.exists()",
             ".read": "auth.uid === 'entry-service' || auth.uid === 'exhibitionuid' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
             ".indexOn": "booking_id",
@@ -42,6 +39,26 @@
                 //invalidate any extra fields
                 "$other": {
                     ".validate": false
+                }*/
+                ".indexOn": "booking_id",
+                ".write": true,
+                ".read": true
+            },
+        "rfid_scans": {
+            ".write": true,
+            ".read": true,
+            "$scanner_id": {
+                "scan_id": {
+                    "rfid": {
+                        ".validate": "newData.isString()"
+                    },
+                    "timestamp": {
+                        ".validate": "newData.isNumber()"
+                    },
+                    //invalidate any extra fields
+                    "$other": {
+                        ".validate": false
+                    }
                 }
             }
         },
