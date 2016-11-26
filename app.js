@@ -1,10 +1,10 @@
 function App() {
     this.user;
-    this.book_button = document.getElementById('book');
-    this.booking_quantity_input = document.getElementById('booking-quantity');
-    this.booking_email_input = document.getElementById('booking-email');
+    //this.book_button = document.getElementById('book');
+    //this.booking_quantity_input = document.getElementById('booking-quantity');
+    //this.booking_email_input = document.getElementById('booking-email');
 
-    this.book_button.addEventListener('click', this.book.bind(this));
+    //this.book_button.addEventListener('click', this.book.bind(this));
 
     this.init_firebase();
 }
@@ -13,17 +13,21 @@ function App() {
 App.prototype.init_firebase = function() {
     this.database = firebase.database();
     this.storage = firebase.storage();
-    this.auth = firebase.auth()
+    this.auth = firebase.auth();
 
-    this.booking_ref = this.database.ref('bookings');
-    this.booking_ref.off();
+    //this.booking_ref = this.database.ref('bookings');
+    //this.booking_ref.off();
 
+    this.provider = new firebase.auth.GoogleAuthProvider(); // NOTE: change to email/password?
     this.auth.onAuthStateChanged(this.on_auth_state_change.bind(this));
 };
 
 App.prototype.sign_in = function() {
-    firebase.auth().signInAnonymously().catch(function(error) {
-        console.error('Sign in failed', error);
+    this.auth.signInWithPopup(this.provider).then(function(result) {
+        this.token = result.credential.accessToken;
+        this.user = result.user;
+    }).catch(function(err) {
+        console.error('Sign in failed', err);
     });
 }
 
@@ -47,10 +51,16 @@ App.prototype.change_focus = function(booking_id) {}
 App.prototype.add_rfid = function(rfid) {}
 App.prototype.close_booking_element = function() {}
 
+App.prototype.booking_from_recent_booking = function(recent_booking) {
+    var booking = this.database.ref('booking/' + booking_id).once('value').then(function(snapshot) {
+        snapshot.val()
+    });
+}
+
 window.onload = function() {
     window.app = new App();
 
-    app.auth.signInAnonymously()
+    app.sign_in()
 }
 
 function create_recent_booking_element(data) {
@@ -83,10 +93,4 @@ function create_recent_booking_element(data) {
 
 function delete_recent_booking_element(data) {
 
-}
-
-App.prototype.booking_from_recent_booking = function(recent_booking) {
-    var booking = this.database.ref('booking/' + booking_id).once('value').then(function(snapshot) {
-        snapshot.val()
-    });
 }
