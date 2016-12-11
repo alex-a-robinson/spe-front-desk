@@ -3,75 +3,18 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Welcome to Firebase Hosting</title>
-    <style media="screen">
-        body {
-            padding: 0px;
-            margin: 0px;
-        }
+    <title>Front Desk Interface Prototype</title>
 
-        #container {
-            height: 85vh;
-        }
-
-        #header {
-            width: 100%;
-            height: 64px;
-        }
-
-        #recent-bookings-list {
-            width: 50%;
-            background-color: #e0e0e0;
-            display: inline-block;
-            box-sizing: border-box;
-            border-right: solid 1px #000;
-            height: 100%;
-        }
-
-        .recent-booking {
-            background-color: #abffac;
-            margin: 4px;
-            padding: 4px;
-            border: solid 1px #000;
-        }
-
-        .booking-selected {
-            background-color: red;
-        }
-
-        #booking {
-            width: 50%;
-            background-color: #9c9c9c;
-            float: right;
-            display: inline-block;
-            height: 100%;
-        }
-
-        #search {
-            float: right;
-            display: inline-block;
-        }
-
-        h1 {
-            display: inline-block;
-        }
-
-        #search-results {
-            position: absolute;
-            right: 0px;
-            top: 64px;
-            background-color: red;
-            padding-right: 4px;
-        }
-    </style>
+    <link href="index.css" rel="stylesheet">
 </head>
 
 <body>
 
     <div id='container'>
         <div id='header'>
+            <input id='search' placeholder='Search by Email' />
+            <br>
             <h1>Recent bookings</h1>
-            <input id='search' placeholder='email' />
         </div>
 
         <div id='recent-bookings-list'></div>
