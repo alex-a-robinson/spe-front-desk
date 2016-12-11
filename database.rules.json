@@ -1,8 +1,8 @@
 {
     "rules": {
         "recent_bookings": {
-            ".write": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
-            ".read": "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            ".write": "true", // ""auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            ".read": "true", // "auth.uid === 'booking-service' || auth.uid === 'entry-service' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
             "$booking_num": {}
         },
         "bookings": {
@@ -23,8 +23,8 @@
         },
         "rfids": {
             /* DEBUGING hence .write for booking service
-            ".write": "(auth.uid === 'booking-service' || auth.uid === 'entry-service'  || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1') && !data.exists()",
-            ".read": "auth.uid === 'entry-service' || auth.uid === 'exhibitionuid' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
+            ".write": "true", // "(auth.uid === 'booking-service' || auth.uid === 'entry-service'  || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1') && !data.exists()",
+            ".read": "  true", //"auth.uid === 'entry-service' || auth.uid === 'exhibitionuid' || auth.uid === 'rxvoyifq2nM7b7lPW1ZyF1Gcfht1'",
             ".indexOn": "booking_id",
             "$rfid_num": {
                 //Only the entry system should be allowed to assign rfids and no rfids should be overwritten
