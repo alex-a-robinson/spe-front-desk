@@ -35,11 +35,11 @@ App.prototype.on_auth_state_change = function(user) {
 // Creates a booking element in the interface to display real times bookings from terminals
 function create_recent_booking_element_html(snapshot) {
     var booking = snapshot.val();
-    var count = 4; // TODO need booking ticket count
+    var count = booking.quantity; // TODO need booking ticket count
 
     var element_html = '\
         <div class="recent-booking"> \
-            <span><strong>' + booking.quantity + '</strong></span> \
+            <span><strong>' + count + '</strong></span> \
             <span>' + booking.email + '</span> \
             <br /> \
             <input type="button" value="open" onclick="window.app.update_selected(\'' + snapshot.key + '\');"/> \
@@ -68,7 +68,7 @@ App.prototype.create_recent_booking_element = function(snapshot) {
 // Updates booking zoom with selected booking details
 function update_booking_element_html(snapshot) {
     var booking = snapshot.val();
-    var count = 4; // TODO need booking ticket count
+    var count = booking.quantity; // TODO need booking ticket 
 
     $('#booking-email').text(booking.email);
     $('#booking-count').text(count);
@@ -147,7 +147,7 @@ function create_search_results_element_html(snapshot) {
     var results_html = '';
     snapshot.forEach(function(child) {
         var booking = child.val();
-        var count = 4; // TODO: count
+        var count = booking.quantity;
         results_html += '<li><a href="#" onclick="window.app.select_search(\'' + child.key + '\')">' + booking.email + ' - ' + count + ' - ' + booking.timestamp + '</a></li>';
     }.bind(this));
     var element_html = '<div id="search-results"><ul>' + results_html + '</ul></div>';
