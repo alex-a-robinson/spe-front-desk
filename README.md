@@ -19,7 +19,8 @@ We use a special user account and hard code the uid in the database rules file `
 $ git clone https://github.com/begly/spe-front-desk.git
 $ cd spe-front-desk
 $ npm install -g firebase-tools
-$ firebase signin
+$ npm install
+$ firebase login
 
 -- Start the firebase dev server, just serves static index.html file
 $ firebase serve
