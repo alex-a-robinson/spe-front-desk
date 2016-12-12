@@ -68,7 +68,7 @@ App.prototype.create_recent_booking_element = function(snapshot) {
 // Updates booking zoom with selected booking details
 function update_booking_element_html(snapshot) {
     var booking = snapshot.val();
-    var count = booking.quantity; // TODO need booking ticket 
+    var count = booking.quantity; // TODO need booking ticket
 
     $('#booking-email').text(booking.email);
     $('#booking-count').text(count);
@@ -220,12 +220,14 @@ App.prototype.add_rfid = function(snapshot) {
 
     var rfid = snapshot.val();
     var booking_id = this.current_selected;
+    var date = firebase.database.ServerValue.TIMESTAMP;
 
     this.get_current_selected_uid(function(uid) {
         uid = uid.uid;
         firebase.database().ref('rfids/' + rfid.rfid).set({
             booking_id: booking_id,
             uid: uid,
+            date: date,
         }).catch(function(err) {
             console.error('Error writing rfid', err);
         });
