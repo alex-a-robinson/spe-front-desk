@@ -39,7 +39,7 @@ function create_recent_booking_element_html(snapshot) {
 
     var element_html = '\
         <div class="recent-booking"> \
-            <span><strong>' + count + '</strong></span> \
+            <span><strong>' + booking.quantity + '</strong></span> \
             <span>' + booking.email + '</span> \
             <br /> \
             <input type="button" value="open" onclick="window.app.update_selected(\'' + snapshot.key + '\');"/> \
