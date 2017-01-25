@@ -42,7 +42,7 @@ function uid_from_email(email, success_callback, failure_callback) {
 
 admin.initializeApp({
     databaseURL: "https://spe-elabs.firebaseio.com",
-    credential: admin.credential.cert(require("service.json")),
+    credential: admin.credential.cert(require("./service.json")),
     databaseAuthVariableOverride: {
         uid: "booking-service"
     }

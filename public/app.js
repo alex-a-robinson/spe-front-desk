@@ -1,7 +1,7 @@
 function App() {
     this.user = null;
     this.current_selected = null;
-    this.scanner_id = 1;
+    this.scanner_id = 9001;
     this.new_items = false;
     this.init_firebase();
 }
@@ -35,7 +35,7 @@ App.prototype.on_auth_state_change = function(user) {
 // Creates a booking element in the interface to display real times bookings from terminals
 function create_recent_booking_element_html(snapshot) {
     var booking = snapshot.val();
-    var count = 4; // TODO need booking ticket count
+    var count = booking.quantity; // TODO need booking ticket count
 
     var element_html = '\
         <div class="recent-booking"> \
@@ -68,7 +68,7 @@ App.prototype.create_recent_booking_element = function(snapshot) {
 // Updates booking zoom with selected booking details
 function update_booking_element_html(snapshot) {
     var booking = snapshot.val();
-    var count = 4; // TODO need booking ticket count
+    var count = booking.quantity; // TODO need booking ticket
 
     $('#booking-email').text(booking.email);
     $('#booking-count').text(count);
@@ -147,7 +147,7 @@ function create_search_results_element_html(snapshot) {
     var results_html = '';
     snapshot.forEach(function(child) {
         var booking = child.val();
-        var count = 4; // TODO: count
+        var count = booking.quantity;
         results_html += '<li><a href="#" onclick="window.app.select_search(\'' + child.key + '\')">' + booking.email + ' - ' + count + ' - ' + booking.timestamp + '</a></li>';
     }.bind(this));
     var element_html = '<div id="search-results"><ul>' + results_html + '</ul></div>';
@@ -220,6 +220,7 @@ App.prototype.add_rfid = function(snapshot) {
 
     var rfid = snapshot.val();
     var booking_id = this.current_selected;
+    var date = firebase.database.ServerValue.TIMESTAMP;
 
     this.get_current_selected_uid(function(uid) {
         uid = uid.uid;
@@ -227,6 +228,7 @@ App.prototype.add_rfid = function(snapshot) {
             date: firebase.database.ServerValue.TIMESTAMP,
             booking_id: booking_id,
             uid: uid,
+            date: date,
         }).catch(function(err) {
             console.error('Error writing rfid', err);
         });
