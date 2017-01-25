@@ -224,6 +224,7 @@ App.prototype.add_rfid = function(snapshot) {
     this.get_current_selected_uid(function(uid) {
         uid = uid.uid;
         firebase.database().ref('rfids/' + rfid.rfid).set({
+            date: firebase.database.ServerValue.TIMESTAMP,
             booking_id: booking_id,
             uid: uid,
         }).catch(function(err) {
