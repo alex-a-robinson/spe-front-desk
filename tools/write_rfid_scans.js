@@ -31,4 +31,4 @@ function getRandomInt(min, max) {
 }
 
 // ---- DO YOUR CHANGES HERE ----
-write_rfid_scans(1, getRandomInt(0, 1000000000), 999);
+write_rfid_scans(1, getRandomInt(0, 1000000000), 123);
