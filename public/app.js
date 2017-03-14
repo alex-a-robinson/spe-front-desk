@@ -1,7 +1,7 @@
 function App() {
     this.user = null;
     this.current_selected = null;
-    this.scanner_id = 9001;
+    this.scanner_id = 1;
     this.new_items = false;
     this.init_firebase();
 }
