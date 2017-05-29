@@ -49,11 +49,3 @@ Tools use a service account which should be included, if not download from [fire
 
 - Write a booking, open `tools/write_booking.js` and edit last line then run `node tools/write_booking.js`. This also adds the booking to the recent_bookings table. Notice if you run this while the interface is open it will auto update.
 - Write a RFID scan, open `tools/write_rfid_scans.js` and edit last line then run `node tools/write_rfid_scans.js`. If you write a scan while `Add RFIDs` button pressed on interface then the RFIDs will be linked with the selected booking and show in the interface.
-
-## TODO
-
-- Interface should show which scanner it is connected to
-- Interface should allow removal of RFID
-- On search should grey out results which have already linked RFIDs to reduce amount to search
-- Cleanup database and fix permissions
-- Add testing service account with read/write to everything
